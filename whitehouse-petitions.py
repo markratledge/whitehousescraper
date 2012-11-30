@@ -3,7 +3,10 @@ import requests
 import lxml.html
 import sys
 import csv
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 from optparse import OptionParser
 
 parser = OptionParser()
