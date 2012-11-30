@@ -3,6 +3,7 @@ import requests
 import lxml.html
 import sys
 import csv
+import json
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -64,8 +65,8 @@ def process_response(response,page):
 
 def get_response(arg,page,last_id):
 	response = requests.get(response_petition_url % (arg,page,last_id)).text
-	response = response.replace("\\n", "").replace("\\","").replace("      ","")[12:-2]
-	new_arg,new_last_id,data = process_response(response,page)
+	json_response = json.loads(response)
+	new_arg,new_last_id,data = process_response(json_response['markup'],page)
 	return new_arg,new_last_id,data
 
 csv_keys = ['name', 'location', 'date', 'nr']
