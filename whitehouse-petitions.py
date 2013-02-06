@@ -34,25 +34,25 @@ def process_response(response,page):
 	record = {}
 	if page == 1:
 		creator = root.xpath('div[@class="entry entry-creator "]/div')
-		record['name'] = creator[1].text
-		record['location'] = creator[2].text
-		record['date'] = creator[2][0].tail
+		record['name'] = creator[1].text.strip().encode('utf-8')
+		record['location'] = creator[2].text.strip().encode('utf-8')
+		record['date'] = creator[2][0].tail.strip()
 		record['nr'] = creator[2][1].tail.strip().replace('Signature # ','')
 		data.append(record)
 		record = {}
 	end_of_line_registrants = root.xpath('div[@class="entry entry-reg last"]')
 	for registrant in end_of_line_registrants:
-		record['name'] = registrant[0].text
-		record['location'] = registrant[2].text
-		record['date'] = registrant[2][0].tail
+		record['name'] = registrant[0].text.strip().encode('utf-8')
+		record['location'] = registrant[2].text.strip().encode('utf-8')
+		record['date'] = registrant[2][0].tail.strip()
 		record['nr'] = registrant[2][1].tail.strip().replace('Signature # ','')
 		data.append(record)
 		record = {}
 	registrants = root.xpath('div[@class="entry entry-reg "]')
 	for registrant in registrants:
-		record['name'] = registrant[0].text
-		record['location'] = registrant[2].text
-		record['date'] = registrant[2][0].tail
+		record['name'] = registrant[0].text.strip().encode('utf-8')
+		record['location'] = registrant[2].text.strip().encode('utf-8')
+		record['date'] = registrant[2][0].tail.strip()
 		record['nr'] = registrant[2][1].tail.strip().replace('Signature # ','')
 		data.append(record)
 		record = {}
@@ -87,20 +87,21 @@ except Exception,e:
 	exit(-1)
 arg = root.xpath('//a[@class="load-next no-follow active"]')[0].attrib['rel']
 last_id = root.xpath('//div[@id="last-signature-id"]')[0].text_content()
-f = open(options.filename, 'wb')
-dict_writer = csv.DictWriter(f, csv_keys)
-dict_writer.writer.writerow(csv_keys)
+
 if last_id:
 	next = True
-while next == True:
-	if last_id != '':
-		arg,last_id,data = get_response(arg,page,last_id)
-		#save to file
-		dict_writer.writerows(data)
-		page = page+1
-	else:
-		print 'Done processing petition. Fetched',page-1, 'pages.'
-		print 'Wrote to file "',options.filename,'"'
-		f.close()
-		next = False
 
+with open(options.filename, 'wb') as f:
+	dict_writer = csv.DictWriter(f, csv_keys)
+	dict_writer.writer.writerow(csv_keys)
+	while next == True:
+		if last_id != '':
+			arg,last_id,data = get_response(arg,page,last_id)
+			#save to file
+			dict_writer.writerows(data)
+			page = page+1
+		else:
+			print 'Done processing petition. Fetched',page-1, 'pages.'
+			print 'Wrote to file "',options.filename,'"'
+			#f.close()
+			next = False
